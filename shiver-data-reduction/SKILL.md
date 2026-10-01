@@ -28,22 +28,94 @@ from mantid.simpleapi import Load, LoadMD, MakeSlice, SaveMD, mtd
 
 ---
 
-## 2. Fast Metadata Probing (`MetadataOnly=True`)
+## 2. UB Matrix & Crystal Orientation: Locating, Inspecting, and Setting
 
+### Where Does the UB Matrix Live on Disk?
+Within an SNS/HFIR proposal directory (`.../IPTS-<number>/`), orientation matrices reside exclusively in shared locations:
+
+1. **Embedded in the MDE Dataset (Most Common)**:
+   - Located in `shared/MDE/` with names such as `*_shiver_UB.nxs`, `*_aligned.nxs`, or `*_complete.nxs`.
+   - The UB matrix and oriented lattice are embedded in the NeXus sample group metadata and loaded automatically with `LoadMD`.
+
+2. **Standalone ISAW `.mat` Files**:
+   - Files with extension `.mat` located strictly **within `shared/` or its subdirectories** (e.g., `shared/*.mat`, `shared/autoreduce/*.mat`, `shared/UB/*.mat`, `shared/scripts/`).
+   - `.mat` files **never exist outside `shared/`** (facility directories like `nexus/` are strictly read-only and restricted to raw instrument event NeXus files).
+   - ISAW `.mat` files are plain ASCII text storing the $3 \times 3$ UB matrix and lattice parameters ($a, b, c, \alpha, \beta, \gamma$).
+
+3. **NeXus Logs**:
+   - Inside raw or autoreduced NeXus files under `/entry/sample/ub_matrix`.
+
+---
+
+### Fast Metadata Probing (`MetadataOnly=True`)
 Multi-angle combined MDE files (e.g., `..._complete_shiver_UB.nxs`) are often 50–100+ GB. Ingesting full event lists takes 5–7 minutes over network filesystems.
 
-**Always probe metadata first** to retrieve coordinate bounds, UB matrices, and lattice constants in seconds:
+**Always probe metadata first** to retrieve coordinate bounds, UB matrices, and lattice constants in seconds. Always check `hasOrientedLattice()` before calling `getOrientedLattice()` to prevent runtime exceptions:
 
 ```python
 from mantid.simpleapi import LoadMD
 
 ws_meta = LoadMD(Filename=data_path, MetadataOnly=True, OutputWorkspace="ws_meta")
+sample = ws_meta.getExperimentInfo(0).sample()
 
-# Inspect oriented lattice and UB matrix
-ei = ws_meta.getExperimentInfo(0)
-ol = ei.sample().getOrientedLattice()
-print(f"Lattice: a={ol.a():.4f}, b={ol.b():.4f}, c={ol.c():.4f}, gamma={ol.gamma():.1f}")
-print("UB Matrix:\n", ol.getUB())
+if not sample.hasOrientedLattice():
+    raise RuntimeError(f"No oriented lattice or UB matrix found in {data_path}!")
+
+ol = sample.getOrientedLattice()
+
+# 1. Full 3x3 Busing-Levy UB matrix (Q_cart = 2*pi * UB * (H, K, L))
+UB = ol.getUB()
+
+# 2. Decomposition into U (rotation) and B (reciprocal geometry)
+U = ol.getU()
+B = ol.getB()
+
+# 3. Direct lattice parameters (real space, Angstroms and degrees)
+a, b, c = ol.a(), ol.b(), ol.c()
+alpha, beta, gamma = ol.alpha(), ol.beta(), ol.gamma()
+print(f"Lattice: a={a:.4f}, b={b:.4f}, c={c:.4f}, gamma={gamma:.1f}")
+
+# 4. Reciprocal lattice parameters (Angstrom^-1 and degrees)
+astar, bstar, cstar = ol.astar(), ol.bstar(), ol.cstar()
+```
+
+---
+
+### Loading a Standalone `.mat` File into a Workspace
+If an MDE dataset lacks an oriented lattice, load the `.mat` file from `shared/` using Mantid's `LoadIsawUB`:
+
+```python
+from mantid.simpleapi import LoadIsawUB
+
+# Attach external UB from shared/ to an existing MD or Matrix workspace
+LoadIsawUB(InputWorkspace="ws_meta", Filename=".../shared/UB/lattice.mat")
+```
+
+To export the current UB matrix to a `.mat` file for sharing or archiving:
+```python
+from mantid.simpleapi import SaveIsawUB
+
+SaveIsawUB(InputWorkspace="ws_meta", Filename=".../shared/scripts/gemini/FeS_UB.mat")
+```
+
+---
+
+### Setting or Overriding the UB Matrix Programmatically
+If the lattice constants and orienting vectors are known:
+
+```python
+from mantid.simpleapi import SetUB
+
+# Set by lattice parameters and orienting vectors (u along beam, v in horizontal scattering plane)
+SetUB(
+    Workspace="ws_meta",
+    a=3.4460, b=3.4460, c=5.6605,
+    alpha=90.0, beta=90.0, gamma=120.0,
+    u="1,0,0", v="0,0,1"
+)
+
+# Or set directly from a known 3x3 numpy array
+SetUB(Workspace="ws_meta", UB=UB_matrix_3x3)
 ```
 
 ---
