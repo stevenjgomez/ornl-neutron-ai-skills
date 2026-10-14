@@ -89,7 +89,7 @@ If an SSH connection drops or an idle timeout occurs, any foreground process run
 Always execute heavy data reduction or slicing jobs detached using `nohup` with `< /dev/null` (to prevent SSH pseudo-terminal retention) and Python `-u` (for unbuffered logging):
 
 ```bash
-cd /SNS/users/<user>/data/SNS/<beamline>/IPTS-<number>/shared/scripts/gemini
+cd /SNS/users/<user>/data/SNS/<beamline>/IPTS-<number>/shared/scripts/agents
 nohup /usr/local/pixi/shiver/.pixi/envs/default/bin/python -u script.py < /dev/null > run.log 2>&1 &
 echo "PID: $!"
 ```
