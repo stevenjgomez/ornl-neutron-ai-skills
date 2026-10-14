@@ -55,7 +55,7 @@ Inside each proposal folder (`.../IPTS-<number>/`):
   - `shared/MDE/`: Multi-dimensional event (MDE) single-crystal datasets.
   - `shared/van*.nxs`: Detector vanadium sensitivity calibration workspaces.
   - `shared/*.mat` or `shared/**/<name>.mat`: **ISAW UB matrix orientation files (always inside `shared/` or its subfolders, never outside `shared/`)**.
-  - `shared/scripts/gemini/`: **Dedicated workspace for agent-generated scripts, intermediate slices, and figures.**
+  - `shared/scripts/agents/`: **Dedicated workspace for agent-generated scripts, intermediate slices, and figures.**
 
 ### Safety & Permission Rules
 > [!IMPORTANT]
