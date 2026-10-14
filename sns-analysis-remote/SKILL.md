@@ -59,7 +59,7 @@ Inside each proposal folder (`.../IPTS-<number>/`):
 
 ### Safety & Permission Rules
 > [!IMPORTANT]
-> **Strict Read-Only Data Policy**: Never overwrite, delete, or modify existing raw NeXus, autoreduced files, or original MDE workspaces. All new scripts, logs, and derived files must be created strictly within `shared/scripts/gemini/` or `$HOME`.
+> **Strict Read-Only Data Policy**: Never overwrite, delete, or modify existing raw NeXus, autoreduced files, or original MDE workspaces. All new scripts, logs, and derived files must be created strictly within `shared/scripts/agents/` or `$HOME`.
 
 ---
 
