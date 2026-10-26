@@ -6,6 +6,7 @@ This repository contains specialized skills and workflow blueprints for performi
 
 | Skill | Description | Primary Instruments |
 | :--- | :--- | :--- |
+| [**`corelli-data-reduction`**](./corelli-data-reduction/SKILL.md) | Single-crystal elastic and diffuse neutron scattering data reduction, 3D/4D reciprocal-space normalization, Bragg and satellite peak integration, and Jana2020/SHELX export via `garnet` and `/SNS/software/scd/reduce.sh`. | CORELLI (BL-9), TOPAZ, MANDI, SNAP |
 | [**`dgs-experiment-planner`**](./dgs-experiment-planner/SKILL.md) | Plan, simulate, and optimize single-crystal and powder inelastic neutron scattering experiments, reciprocal-space (HKL/Q) coverage, crystal orientation engineering, and chopper configurations using Mantid IDFs and analytical kinematics. | ARCS, SEQUOIA, CNCS, HYSPEC, MERLIN, MAPS, LET, IN5 |
 | [**`shiver-data-reduction`**](./shiver-data-reduction/SKILL.md) | Single-crystal inelastic neutron scattering data reduction, MDE slicing, vanadium normalization, and physically isotropic reciprocal-space plotting via SHIVER & Mantid. | ARCS, SEQUOIA, CNCS, HYSPEC |
 | [**`sns-analysis-remote`**](./sns-analysis-remote/SKILL.md) | Remote cluster execution etiquette, centralized Pixi environment mechanics, directory hierarchy navigation, and resilient headless job execution on `analysis.sns.gov`. | SNS & HFIR Facility-wide |
@@ -17,6 +18,8 @@ This repository contains specialized skills and workflow blueprints for performi
 
 ```text
 ├── README.md
+├── corelli-data-reduction/
+│   └── SKILL.md
 ├── dgs-experiment-planner/
 │   ├── SKILL.md
 │   ├── references/
